@@ -3,7 +3,7 @@ set source=C:\Users\pitts_2\Downloads\1.mrc
 set target=Z:
  set STARTTIME=%TIME%
 :loop
- if /I "%number%" EQU "20" goto end
+ if /I "%number%" EQU "80" goto end
  set /a number = %number%+1
  echo movie_%number%
  copy %source% %target%\%number%.mrc
