@@ -1,22 +1,51 @@
 @echo off
+set number=0
+set source=C:\Users\pitts_2\Downloads\1.mrc
+set target=Z:\inbox\20170622_rob_motioncor\GRID_01\DATA
 
-    rem ******************  MAIN CODE SECTION
-    set STARTTIME=%TIME%
+:loop
+ if /I "%number%" EQU "100" goto end
 
-    rem Your code goes here (remove the ping line)
-    ping -n 4 -w 1 192.168.1.20  >NUL
+ set STARTTIME=%TIME%
+ set /a number = %number%+1
+ echo movie_%number%
+ copy %source% %target%\%number%.mrc
+ set ENDTIME=%TIME%
+ call:print_time "%STARTTIME%","%ENDTIME%"
+ rem write takes 10sec + 50 one movie each 30 secs
+ timeout 20
+ set STARTTIME=%TIME%
+ set /a number = %number%+1
+ echo movie_%number%
+ copy %source% %target%\%number%.mrc
+ set ENDTIME=%TIME%
+ call:print_time "%STARTTIME%","%ENDTIME%"
+ rem write takes 10sec + 50 one movie each 30 secs
+ timeout 20
+ set STARTTIME=%TIME%
+ set /a number = %number%+1
+ echo movie_%number%
+ copy %source% %target%\%number%.mrc
+ set ENDTIME=%TIME%
+ call:print_time "%STARTTIME%","%ENDTIME%"
+ rem write takes 10sec + 50 one movie each 30 secs
+ timeout 90
 
-    set ENDTIME=%TIME%
+goto loop
+:end
+pause
 
-    rem ******************  END MAIN CODE SECTION
 
+:print_time
 
+    set STARTTIME2=%~1
+    set ENDTIME2=%~2
     rem Change formatting for the start and end times
-    for /F "tokens=1-4 delims=:.," %%a in ("%STARTTIME%") do (
+    for /F "tokens=1-4 delims=:.," %%a in ("%STARTTIME2%") do (
        set /A "start=(((%%a*60)+1%%b %% 100)*60+1%%c %% 100)*100+1%%d %% 100"
     )
 
-    for /F "tokens=1-4 delims=:.," %%a in ("%ENDTIME%") do (
+    for /F "tokens=1-4 delims=:.," %%a in ("%ENDTIME2%") do (
        set /A "end=(((%%a*60)+1%%b %% 100)*60+1%%c %% 100)*100+1%%d %% 100"
     )
 
@@ -32,7 +61,9 @@
 
     set DURATION=%hh%:%mm%:%ss%,%cc%
 
-    echo Start    : %STARTTIME%
-    echo Finish   : %ENDTIME%
+    echo Start    : %STARTTIME2%
+    echo Finish   : %ENDTIME2%
     echo          ---------------
     echo Duration : %DURATION% 
+
+goto:eof
