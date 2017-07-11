@@ -5,6 +5,7 @@ import time
 import sys
 import sqlite3 as lite
 #scipion python plot.py -i cp_movies.sqlite3 -l "eth1_recv disk_write"
+# ~/Scipion/scipion_box/scipion python ./plot.py -i 32_frames_correlation_netbackup_diskbackup.sqlite -o netbackup  -l "eth1_recv disk_write gpuUse_0 eth0_send disk_read" -t "32 frames motioncorr2 net backup" -x "time (minutes)" -y "MB/sec or percentage" -d 310 -D 410
 
 from optparse import OptionParser
 
@@ -52,7 +53,15 @@ timeValues = [r[0] for r in cur.fetchall()]
 #eth1_recv FLOAT,
 #disk_read FLOAT,
 #disk_write FLOAT
-
+color={}
+color['eth1_recv']="blue"
+color['disk_write']="green"
+color['gpuUse_0']="red"
+color['eth0_send']="cyan"
+color['disk_read']="magenta"
+#y: yellow
+#k: black
+#w: white
 data = {}
 def get(name):
     try:
@@ -74,7 +83,8 @@ import matplotlib.pyplot as plt
 f = plt.figure()
 for key in options.labels.split():
     if options.log:
-        plt.semilogy(timeValues, data[key], linewidth=2.5, label=key)
+        _data = [x+1 for x in data[key]]
+        plt.semilogy(timeValues, _data, linewidth=2.5, label=key, color=color[key])
     else:    
         plt.plot(timeValues, data[key], linewidth=2.5, label=key)
 
