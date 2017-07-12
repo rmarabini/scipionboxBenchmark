@@ -1,0 +1,131 @@
+PORT=80
+THREADS=3
+AMAZONIP=54.246.226.189
+AMAZONADDRESS=ubuntu@${AMAZONIP}
+AMAZONADDRESS2=root@${AMAZONIP}
+REMOTEIP=$AMAZONIP
+REMOTEADRESS=$AMAZONADDRESS
+PEM=$HOME/.ssh/amazon_rmarabin.pem
+
+ssh -i /home/roberto/.ssh/amazon_rmarabin.pem $REMOTEADRESS
+==================================
+Install bbcp
+checkout git clone http://www.slac.stanford.edu/~abh/bbcp2/bbcp.git
+---
+cd bbcp/src
+
+under the src directory , edit Makefile 
+
+find "Linux" around line 184. change the line @make makeLinux`/bin/uname -i` to @make makeLinux`/bin/uname -m`
+---
+This bash script  is designed to test transfer of big size data (BigData) from local host to remote host
+using utility 'bbcp' over Internet.
+Detailed description of bbcp parameters can be found on the page 
+http://www.slac.stanford.edu/~abh/bbcp/
+An example of using bbcp on the page:
+http://pcbunn.cithep.caltech.edu/bbcp/using_bbcp.htm
+---
+ It works in a similar way to GridFTP over SSH in that it connects to the transfer server using your usual SSH credentials but then can set up parallel data streams for transferring data. One advantage of bbcp that it is provided as a single binary executable which is easy to download and use.
+---
+==================================
+rsync -va 1.mrcs -e "ssh -i /home/roberto/.ssh/amazon_rmarabin.pem" ubuntu@54.154.208.219:.
+
+********************************
+1) measurements with ***iperf***
+*******************************
+    in amazon:
+         * sudo service guacamole stop
+         * sudo iperf -s -p 80 
+  scipionbox --> amazon
+        * iperf -c ${AMAZONIP} -p ${PORT} -t 80 -P ${THREADS}
+        - atop -> NET |  eth0     25% |  pcki   83886  | pcko  209526  |  si 4653 Kbps |  so  253 Mbps |  erri       0  | erro       0  |
+        - iperf -> 0.0-80.1 sec  2.24 GBytes   240 Mbits/sec
+        * try two iperf at the same time...
+  sxipionbox --> clark6
+         - NET |  eth0     98% |  pcki   58571  | pcko  812737  |  si 3229 Kbps |  so  984 Mbps |  erri       0  | erro       0  |
+         - 0.0-80.0 sec  8.77 GBytes   941 Mbits/sec (Red 1Gb?)
+
+  clark6     --> amazon
+        * iperf -c ${AMAZONIP} -p ${PORT} -t 80
+          >> atop  -> NET |  eth0     ***24%*** |  pcki   89794  | pcko  205976  |  si 4877 Kbps |  so  249 Mbps |  erri       0  | erro       0  |
+          >> iperf -> [  5]  0.0-80.1 sec  2.21 GBytes   237 Mbits/sec
+          >> plot (system)
+          Threads = 1,2,3,4  
+*******************
+2) RSYNC
+**********************
+  
+  clark6-> amazon
+  rsync -av --progress -e "ssh -i ${PEM}" kk.mrcs   ${AMAZONADDRESS}:
+kk.mrcs
+  1,074,529,280 100%   29.69MB/s    0:00:34 (xfr#1, to-chk=0/1)
+  sent 1,074,791,723 bytes  received 35 bytes  29,446,349.53 bytes/sec
+  total size is 1,074,529,280  speedup is 1.00
+
+  scipionbox -> amazon
+    1,074,529,280 100%   25.55MB/s    0:00:40 (xfr#1, to-chk=0/1)
+
+sent 1,074,791,725 bytes  received 35 bytes  24,707,856.55 bytes/sec
+total size is 1,074,529,280  speedup is 1.00
+
+   scipionbox -> clark6
+rsync -av --progress  kk.mrcs roberto@clark6:.
+sending incremental file list
+kk.mrcs
+  1,074,529,280 100%  112.06MB/s    0:00:09 (xfr#1, to-chk=0/1)
+
+====================================================================
+transfer rate
+CArmen example
+.5 minutes if same hole
+4397 movies in 3 days, 7 hours preparation --> 1.13, 
+====================================
+SET samba in cklark6
+ vi /etc/samba/smb.conf
+[global]
+workgroup = WORKGROUP
+server string = Samba Server %v
+netbios name = debian
+security = user
+map to guest = bad user
+dns proxy = no
+
+[scipionbox]
+  comment = All Users
+  path = /home/roberto/PROCESSING/STREAMING_TEST
+  valid users = @users
+  force group = users
+  create mask = 0660
+  directory mask = 0771
+  writable = yes
+
+#restart samba
+/usr/sbin/service smbd restart
+
+#access service
+smbclient -U scipion //localhost/scipionbox/
+
+#windows direct conection
+windows script
+--
+set number=0^M
+set source=C:\Users\pitts_2\Downloads\1.mrc^M
+set target=Z:^M
+:loop^M
+ if /I "%number%" EQU "3" goto end^M
+ set /a number = %number%+1^M
+ echo movie_%number%^M
+ copy %source% %target%\%number%.mrc^M
+ timeout 5^M
+goto loop^M
+:end
+--
+-> clark6- samba
+-> set up transfer from clark 6 to amazon and to findley
+================================================================
+              Due to the internal buffering of data, the --progress option may not be an accurate reflection on  how
+              fast  the  data  is being sent.  This is because some files can show up as being rapidly sent when the
+              data is quickly buffered, while other can show up as very slow when the flushing of the output  buffer
+              occurs.  This may be fixed in a future version.
+rsync --bwlimit=50000 -av  /home/carmen/Data/20170529_CARMENSM_delta7_crio_tomo_4_control_wt /media/usb0/ >nohup2.out
+

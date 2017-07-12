@@ -1,0 +1,45 @@
+#Comando para copiar a MV con rsync
+
+rsync -av --progress -e "ssh -i ~/Documents/CNB/Cloud/AWS/rmarabini.pem" VMImages/ScipionCloud-v1.1-beta.ova ubuntu@54.154.136.191:
+
+#Comando iperf en server
+
+sudo iperf -s -p 80
+
+------------------------------------------------------------
+Server listening on TCP port 80
+TCP window size: 85.3 KByte (default)
+------------------------------------------------------------
+[  4] local 172.31.37.239 port 80 connected with 150.244.85.94 port 54796
+[ ID] Interval       Transfer     Bandwidth
+[  4]  0.0-10.0 sec   282 MBytes   236 Mbits/sec
+[  5] local 172.31.37.239 port 80 connected with 150.244.85.94 port 54832
+[  5]  0.0-10.1 sec   297 MBytes   247 Mbits/sec
+[  4] local 172.31.37.239 port 80 connected with 150.244.85.94 port 55290
+[  4]  0.0-40.1 sec  1.18 GBytes   253 Mbits/sec
+
+
+#Comando iperf en client (copiar durante 40 sec)
+
+iperf -c 54.154.136.191 -p 80 -t 40
+
+
+------------------------------------------------------------
+Client connecting to 54.154.136.191, TCP port 80
+TCP window size: 85.0 KByte (default)
+------------------------------------------------------------
+[  3] local 150.244.85.94 port 55290 connected with 54.154.136.191 port 80
+[ ID] Interval       Transfer     Bandwidth
+[  3]  0.0-40.0 sec  1.18 GBytes   253 Mbits/sec
+
+
+https://510009172324.signin.aws.amazon.com/console
+
+ 1555  bbcp -P 2 -s 1  ?.mrcs $AMAZONADDRESS2:.
+ 1559  bbcp -P 2 -s 1 -Z 80  ?.mrcs $AMAZONADDRESS2:.
+ 1560  bbcp -P 2 -s 2 -Z 80  ?.mrcs $AMAZONADDRESS2:.
+ 1561  bbcp -P 2 -s 3 -Z 80  ?.mrcs $AMAZONADDRESS2:.
+ 1564  bbcp -P 2 -s 2  ?.mrcs roberto@clark6:.PORT=80
+ 1588  history | grep bb
+ 1613  bbcp -a -P 2 -s 2  kk.mrcs ubuntu@34.253.184.167:.
+ 1616  bbcp -a -P 2 -s 2  kk.mrcs ubuntu@34.253.184.167:.
