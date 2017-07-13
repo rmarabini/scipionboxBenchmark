@@ -57,8 +57,10 @@ color={}
 color['eth1_recv']="blue"
 color['disk_write']="green"
 color['gpuUse_0']="red"
-color['eth0_send']="cyan"
-color['disk_read']="magenta"
+#color['eth0_send']="magenta"
+#color['disk_read']="cyan"
+color['eth0_send']="magenta"
+color['disk_read']="cyan"
 #y: yellow
 #k: black
 #w: white
@@ -86,7 +88,7 @@ for key in options.labels.split():
         _data = [x+1 for x in data[key]]
         plt.semilogy(timeValues, _data, linewidth=2.5, label=key, color=color[key])
     else:    
-        plt.plot(timeValues, data[key], linewidth=2.5, label=key)
+        plt.plot(timeValues, data[key], linewidth=2.5, label=key, color=color[key])
 
 plt.xlabel(options.xlabel)
 plt.ylabel(options.ylabel)
